@@ -150,6 +150,9 @@ FetchGoogleOtherContactService(next_page_token)  // ===> next_page_token is Opti
 | data       | User Array List                                | response user data from Google  |
  message          |          |Message will receive only Failure 
 
+ ## Contributing
+
+See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
 
 ## License
 
