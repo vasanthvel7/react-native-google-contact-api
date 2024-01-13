@@ -9,9 +9,9 @@ A React Native package that facilitates the retrieval of Google Contacts and Oth
 npm install react-native-google-contact-api
 ```
 
-# Android Configuration Guide
+### Android Configuration Guide
 
-## Firebase Configuration
+#### Firebase Configuration
 
 Obatain SHA1 Key from the KeyStore file, add it to the [Firebase Console](https://console.firebase.google.com/) by following these steps:
 
@@ -24,13 +24,13 @@ Then, go to [Firebase Console](https://console.firebase.google.com/), select you
 
 You can get your `webClientId` from [Google Developer Console](https://console.developers.google.com/apis/credentials).
 
-### Steps To Generate OAUTH2 `webClientId`
+#### Steps To Generate OAUTH2 `webClientId`
 1. Create credentials using OAUTH Client ID Configuration.
 2. Select Application Type as Web Application.
 3. Add your Application name and Redirect URI.
 4. The WebClient Id is generated for your application.
 
-## Gradle Configuration
+#### Gradle Configuration
 
 If you're running your app in debug mode and not using `webClientId` or you're sure it's correct, the problem might be a signature (SHA-1 or SHA-256) mismatch. Add the following to `android/app/build.gradle`:
 
@@ -54,9 +54,9 @@ And Then
 }
 ```
 
-# IOS Configuration Guide
+### IOS Configuration Guide
 
-## Firebase Configuration
+#### Firebase Configuration
 
 You can get your `webClientId` from [Google Developer Console](https://console.developers.google.com/apis/credentials).
 
