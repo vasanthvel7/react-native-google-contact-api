@@ -17,38 +17,13 @@ const GoogleContactApi = NativeModules.GoogleContactApi
       }
     );
 
-// Types
-export type userDataProps = {
-  ClientId: string;
-  rediectUrl?: string;
-  appId?: string;
-  ClientSecret?: string;
-};
-type GoogleContactResponse = {
-  Mobile?: string;
-  name: string | null;
-  email?: string;
-};
-export type RegisterResponseProps = {
-  status: number;
-  message: string;
-};
-export type ContactResponseDataProps = {
-  data: GoogleContactResponse[];
-  status: number;
-  message?: string;
-  nextPageToken: string | null;
-};
-
 // Promises
-export function RegisterGoogleClientService(userData: userDataProps) {
+export function RegisterGoogleClientService(userData) {
   return GoogleContactApi.SubmitClientToken(userData);
 }
-export function FetchGoogleContactService(nextPageToken: string | null = null) {
+export function FetchGoogleContactService(nextPageToken = null) {
   return GoogleContactApi.getContact(nextPageToken);
 }
-export function FetchGoogleOtherContactService(
-  nextPageToken: string | null = null
-) {
+export function FetchGoogleOtherContactService(nextPageToken = null) {
   return GoogleContactApi.getOtherContact(nextPageToken);
 }
