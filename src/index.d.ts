@@ -26,10 +26,10 @@ declare module 'react-native-google-contact-api' {
   ): Promise<RegisterResponseProps>;
 
   export function FetchGoogleContactService(
-    nextPageToken: string | null
+    nextPageToken?: string | null
   ): Promise<ContactResponseDataProps>;
 
   export function FetchGoogleOtherContactService(
-    nextPageToken: string | null
+    nextPageToken?: string | null
   ): Promise<ContactResponseDataProps>;
 }

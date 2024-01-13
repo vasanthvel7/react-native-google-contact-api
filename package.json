@@ -2,9 +2,9 @@
   "name": "react-native-google-contact-api",
   "version": "0.1.0",
   "description": "A package for retrieving Google Contacts and OtherContacts from Google.",
-  "main": "lib/commonjs/index",
+  "main": "src/index",
   "module": "lib/module/index",
-  "types": "lib/typescript/index.d.ts",
+  "types": "src/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
   "files": [
