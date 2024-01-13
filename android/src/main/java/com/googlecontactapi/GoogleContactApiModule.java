@@ -165,7 +165,7 @@ public class GoogleContactApiModule extends ReactContextBaseJavaModule {
 
                   contactsarray.pushMap(contactmap);
                 } else {
-                  contactmap.putString("name", "unknown");
+                  contactmap.putNull("name");
                   contactmap.putString("phone Number", phonenumbers.getValue());
                   if (emailAddresses != null) {
                     contactmap.putString("emailAddress ", emailAddresses.get(0).getValue());
@@ -229,7 +229,7 @@ public class GoogleContactApiModule extends ReactContextBaseJavaModule {
                     array.pushMap(map);
                   }
                 } else {
-                  map.putString("name", "Unknown");
+                  map.putNull("name");
                   map.putString("email", emailAddress.getValue());
                   array.pushMap(map);
                 }
