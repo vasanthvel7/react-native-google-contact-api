@@ -72,7 +72,7 @@ Before you can fetch contacts, you need to register your credentials. This proce
 
 To register your credentials and integrate them into your React Native application, follow the example code below. This example demonstrates the process of registering API keys for Google Contacts using the [react-native-google-contact-api](https://www.npmjs.com/package/react-native-google-contact-api) library.
 
-## RegisterGoogleClientService
+### RegisterGoogleClientService
 ```js
 import {
   FetchGoogleContactService,
@@ -106,7 +106,7 @@ There are two types of Contact Fetching Methods available in this Package.
 1. FetchGoogleContactService
 2. FetchGoogleOtherContactService
 
-## Fetch GoogleContact Service
+### Fetch GoogleContact Service
 When dealing with paginated data, services often provide a `next_page_token` as part of the API response to help fetch subsequent pages of data.
 ```js
 FetchGoogleContactService(next_page_token)  // ===> next_page_token is Optional
@@ -119,7 +119,7 @@ FetchGoogleContactService(next_page_token)  // ===> next_page_token is Optional
 ```
 
 
-## Fetch GoogleOtherContact Service
+### Fetch GoogleOtherContact Service
 When dealing with paginated data, services often provide a `next_page_token` as part of the API response to help fetch subsequent pages of data.
 ```js
 FetchGoogleOtherContactService(next_page_token)  // ===> next_page_token is Optional
@@ -130,6 +130,8 @@ FetchGoogleOtherContactService(next_page_token)  // ===> next_page_token is Opti
   // Error Response
 });
 ```
+
+
 ## Response JSON Object
 
 `RegisterGoogleClientService()` Method Reponse
