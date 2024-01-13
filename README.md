@@ -144,7 +144,7 @@ FetchGoogleOtherContactService(next_page_token)  // ===> next_page_token is Opti
 | Key              | Value                                     | Description                                                                                                                                                                                                                                           |
 | ---------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | status            |  1 or 0                     |  `1` - Success, `0` - Failed                                                                                                             |
-| nextPageToken      | String                                | Next page token response from Google                                                                                                                                   |
+| nextPageToken      | String                                | Next page token response from Google.it will return null when next page is empty                                                                                                                                |
 | data       | User Array List                                | response user data from Google  |
  message          |          |Message will receive only Failure 
 
