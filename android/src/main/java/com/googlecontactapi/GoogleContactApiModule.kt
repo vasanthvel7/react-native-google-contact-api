@@ -4,17 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
-import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.BaseActivityEventListener
+import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.module.annotations.ReactModule
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.BaseActivityEventListener
 import com.facebook.react.bridge.UiThreadUtil.runOnUiThread
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableNativeArray
-import com.facebook.react.module.annotations.ReactModule
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -31,15 +30,14 @@ import com.google.api.services.people.v1.model.ListOtherContactsResponse
 import com.google.api.services.people.v1.model.Name
 import com.google.api.services.people.v1.model.Person
 import com.google.api.services.people.v1.model.PhoneNumber
-import com.google.gdata.util.*
 import java.io.IOException
 
 @ReactModule(name = GoogleContactApiModule.NAME)
 class GoogleContactApiModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
+  NativeGoogleContactApiSpec(reactContext) {
   private var mGoogleSignInClient: GoogleSignInClient? = null
-  var context: Context
-//  var currentActivity: Activity? = null
+  lateinit var context: Context
+  //  var currentActivity: Activity? = null
   var signInIntent: Intent? = null
   var ClientId: String? = null
   var Clientsecret: String? = null
@@ -52,10 +50,63 @@ class GoogleContactApiModule(reactContext: ReactApplicationContext) :
   var peopleService: PeopleService? = null
   var acct: GoogleSignInAccount? = null
 
+
+  override fun getName(): String {
+    return NAME
+  }
+
   init {
     reactContext.addActivityEventListener(ActivityEventListener())
     context = reactContext
   }
+
+  // Example method
+  // See https://reactnative.dev/docs/native-modules-android
+  override fun multiply(a: Double, b: Double): Double {
+    return a * b
+  }
+
+  override fun SubmitClientToken(userData: ReadableMap?, promise: Promise?) {
+    if (userData != null) {
+      ClientId = userData.getString("ClientId")
+    }
+    if (userData != null) {
+      AppId = userData.getString("appId")
+    }
+    if (userData != null) {
+      Clientsecret = userData.getString("ClientSecret")
+    }
+    if (ClientId != null && AppId != null && Clientsecret != null) {
+      val tokenMap = Arguments.createMap()
+      tokenMap.putString("message", "Authentication Success")
+      tokenMap.putInt("status", 1)
+      if (promise != null) {
+        promise.resolve(tokenMap)
+      }
+    } else {
+      val tokenMap = Arguments.createMap()
+      tokenMap.putString("message", "Authentication Failed")
+      tokenMap.putInt("status", 0)
+      if (promise != null) {
+        promise.resolve(tokenMap)
+      }
+    }
+  }
+
+
+  private val authCode: Unit
+    get() {
+      signInIntent = mGoogleSignInClient!!.getSignInIntent()
+      signInIntent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      var currentActivity = reactApplicationContext.currentActivity
+      runOnUiThread {
+        val signInIntent: Intent = mGoogleSignInClient!!.getSignInIntent()
+        currentActivity!!.startActivityForResult(
+          signInIntent,
+          RC_GET_AUTH_CODE
+        )
+      }
+    }
 
   private inner class ActivityEventListener : BaseActivityEventListener() {
     override fun onActivityResult(
@@ -101,8 +152,9 @@ class GoogleContactApiModule(reactContext: ReactApplicationContext) :
         val token = params[0]
         if (token != null) {
           peopleService = PeopleHelper.setUp(context, token, ClientId, Clientsecret)
+          Log.d("shhs", "doInBackground: "+Type)
           if (Type == "OtherContacts") {
-            fetchOtherContacts(null)
+//            fetchOtherContacts(null)
           } else {
             fetchContacts(null)
           }
@@ -115,15 +167,9 @@ class GoogleContactApiModule(reactContext: ReactApplicationContext) :
       }
       return nameList
     }
-
-    override fun onPostExecute(result: List<String>?) {
-      super.onPostExecute(result)
-      // Optional: handle the result, e.g., update UI
-    }
   }
 
-
-  fun fetchContacts(token: String?) {
+    fun fetchContacts(token: String?) {
     try {
       val contactsList = Arguments.createMap()
       val contactsarray: WritableArray = WritableNativeArray()
@@ -194,6 +240,39 @@ class GoogleContactApiModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  override fun getContact(nextPageToken: String?, promise: Promise?) {
+    if (ClientId != null && AppId != null && Clientsecret != null) {
+      if (nextPageToken == null) {
+        if (mGoogleSignInClient != null) {
+          mGoogleSignInClient!!.signOut()
+        }
+        EmailListReturn = promise
+
+        val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+          .requestServerAuthCode(ClientId!!)
+          .requestScopes(
+            Scope("https://www.googleapis.com/auth/contacts"),
+            Scope("https://www.googleapis.com/auth/contacts.other.readonly")
+          )
+          .requestProfile()
+          .requestEmail()
+          .build()
+        mGoogleSignInClient = GoogleSignIn.getClient(context, gso)
+        authCode
+        Type = "Contacts"
+      } else {
+        EmailListReturn = promise
+        fetchContacts(nextPageToken)
+        Type = "Contacts"
+      }
+    } else {
+      val tokenMap = Arguments.createMap()
+      tokenMap.putString("message", "Authentication Failed")
+      tokenMap.putInt("status", 0)
+      promise!!.resolve(tokenMap)
+    }
+  }
+
   fun fetchOtherContacts(token: String?) {
     try {
       val contactList = Arguments.createMap()
@@ -248,66 +327,9 @@ class GoogleContactApiModule(reactContext: ReactApplicationContext) :
     }
   }
 
-
-  @ReactMethod
-  @Throws(IOException::class, ServiceException::class)
-  fun SubmitClientToken(userData: ReadableMap, promise: Promise) {
-    ClientId = userData.getString("ClientId")
-    AppId = userData.getString("appId")
-    Clientsecret = userData.getString("ClientSecret")
+  override fun getOtherContact(nextPageToken: String?, promise: Promise?) {
     if (ClientId != null && AppId != null && Clientsecret != null) {
-      val tokenMap = Arguments.createMap()
-      tokenMap.putString("message", "Authentication Success")
-      tokenMap.putInt("status", 1)
-      promise.resolve(tokenMap)
-    } else {
-      val tokenMap = Arguments.createMap()
-      tokenMap.putString("message", "Authentication Failed")
-      tokenMap.putInt("status", 0)
-      promise.resolve(tokenMap)
-    }
-  }
-
-  @ReactMethod
-  @Throws(IOException::class, ServiceException::class)
-  fun getContact(nextToken: String?, promise: Promise) {
-    if (ClientId != null && AppId != null && Clientsecret != null) {
-      if (nextToken == null) {
-        if (mGoogleSignInClient != null) {
-          mGoogleSignInClient!!.signOut()
-        }
-        EmailListReturn = promise
-
-        val gso: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-          .requestServerAuthCode(ClientId!!)
-          .requestScopes(
-            Scope("https://www.googleapis.com/auth/contacts"),
-            Scope("https://www.googleapis.com/auth/contacts.other.readonly")
-          )
-          .requestProfile()
-          .requestEmail()
-          .build()
-        mGoogleSignInClient = GoogleSignIn.getClient(context, gso)
-        authCode
-        Type = "Contacts"
-      } else {
-        EmailListReturn = promise
-        fetchContacts(nextToken)
-        Type = "Contacts"
-      }
-    } else {
-      val tokenMap = Arguments.createMap()
-      tokenMap.putString("message", "Authentication Failed")
-      tokenMap.putInt("status", 0)
-      promise.resolve(tokenMap)
-    }
-  }
-
-  @ReactMethod
-  @Throws(IOException::class, ServiceException::class)
-  fun getOtherContact(nextToken: String?, promise: Promise) {
-    if (ClientId != null && AppId != null && Clientsecret != null) {
-      if (nextToken == null) {
+      if (nextPageToken == null) {
         if (mGoogleSignInClient != null) {
           mGoogleSignInClient!!.signOut()
         }
@@ -326,45 +348,20 @@ class GoogleContactApiModule(reactContext: ReactApplicationContext) :
         Type = "OtherContacts"
       } else {
         EmailListReturn = promise
-        fetchOtherContacts(nextToken)
+        fetchOtherContacts(nextPageToken)
         Type = "OtherContacts"
       }
     } else {
       val tokenMap = Arguments.createMap()
       tokenMap.putString("message", "Authentication Failed")
       tokenMap.putInt("status", 0)
-      promise.resolve(tokenMap)
+      promise!!.resolve(tokenMap)
     }
-  }
-
-  private val authCode: Unit
-    get() {
-      signInIntent = mGoogleSignInClient!!.getSignInIntent()
-      signInIntent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      var currentActivity = reactApplicationContext.currentActivity
-      runOnUiThread {
-        val signInIntent: Intent = mGoogleSignInClient!!.getSignInIntent()
-        currentActivity!!.startActivityForResult(
-          signInIntent,
-          RC_GET_AUTH_CODE
-        )
-      }
-    }
-
-  override fun getName(): String {
-    return NAME
-  }
-
-
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
-  @ReactMethod
-  fun multiply(a: Double, b: Double, promise: Promise) {
-    promise.resolve(a * b)
   }
 
   companion object {
-    const val NAME: String = "GoogleContactApi"
+    const val NAME = "GoogleContactApi"
     private const val RC_GET_AUTH_CODE = 6080
+
   }
 }

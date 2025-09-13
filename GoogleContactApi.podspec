@@ -14,6 +14,9 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/vasanthvel7/react-native-google-contact-api.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp}"
+  s.dependency "GoogleSignIn", "~> 7.0.0"
+  s.dependency "GTMAppAuth", "~> 2.0.0"
+  s.dependency "AppAuth"
   s.private_header_files = "ios/**/*.h"
 
 
