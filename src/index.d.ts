@@ -1,4 +1,3 @@
-import { StyleProp, ViewStyle, TextStyle } from 'react-native';
 declare module 'react-native-google-contact-api' {
   export type userDataProps = {
     ClientId: string;
@@ -11,6 +10,7 @@ declare module 'react-native-google-contact-api' {
     name: string | null;
     email?: string;
   };
+
   export type RegisterResponseProps = {
     status: number;
     message: string;
